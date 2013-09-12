@@ -356,7 +356,7 @@ public:
 	 *
 	 * </p>Construct a zero dimension vector</p>
 	 */
-	Vector() :
+	Vector() noexcept:
 			vector(nullptr, GarbageVector()) {
 	} // end default constructor
 
@@ -418,7 +418,7 @@ public:
 	 *
 	 * @param &&v non zero dimension vector.
 	 */
-	Vector<double, VectorType>& operator=(Vector<double, VectorType>&& v) {
+	Vector<double, VectorType>& operator=(Vector<double, VectorType>&& v) noexcept{
 		// debug not same dimension
 		if(vector) assert(vector->size==v.vector->size);
 
@@ -474,7 +474,7 @@ public:
 	 * <p>Vector size</p>
 	 * <p>0 if null vector</p>
 	 */
-	size_t size() {
+	constexpr size_t size() const noexcept{
 		if(vector) return vector->size;
 		else return 0;
 	}
@@ -767,7 +767,7 @@ class Matrix {
 	/**
 	 * <p>Default Constructor</p>
 	 */
-	Matrix();
+	Matrix() noexcept;
 
 	/**
 	 * <p>Size based constructor</p>
@@ -788,7 +788,7 @@ class Matrix {
 	 *
 	 * @param m matrix to take ownership of
 	 */
-	Matrix(Matrix<ScalarType, MatrixType> &&);
+	Matrix(Matrix<ScalarType, MatrixType> &&) noexcept;
 
 	/**
 	 * <p>Copy assignement</p>
@@ -803,7 +803,7 @@ class Matrix {
 	 *	@param matrix to take ownership of
 	 */
 	Matrix<ScalarType, MatrixType>& operator=(
-			Matrix<ScalarType, MatrixType> &&am);
+			Matrix<ScalarType, MatrixType> &&am) noexcept;
 
 	/***********************************************
 	 * 		Vector accessors
@@ -823,7 +823,7 @@ class Matrix {
 	 * @param i row_index
 	 * @param j col_index
 	 */
-	ScalarType& operator()(size_t i, size_t j) const;
+	const ScalarType& operator()(size_t i, size_t j) const;
 
 	/**
 	 * <p>set M(i,j) elements : throw gsl error if i,j not in index</p>
@@ -847,12 +847,12 @@ class Matrix {
 	 * <p>Matrix first dimension size e.g nbr of rows</p>
 	 * <p>0 if null matrix</p>
 	 */
-	size_t size_i();
+	constexpr size_t size_i() const noexcept;
 	/**
 	 * <p>Matrix second dimension size e.g nbr of columns</p>
 	 * <p>0 if null matrix</p>
 	 */
-	size_t size_j();
+	constexpr size_t size_j() const noexcept;
 
 	// destructor
 	virtual ~Matrix();
@@ -871,7 +871,7 @@ public:
 	 * <p>Default constructor does not initialize</p>
 	 *
 	 */
-	Matrix() :
+	Matrix() noexcept:
 			matrix(nullptr, GarbageMatrix()) {
 	}
 	/**
@@ -944,7 +944,7 @@ public:
 	 *
 	 * @param m matrix to take ownership of
 	 */
-	Matrix<double, MatrixType>& operator=(Matrix<double, MatrixType> &&m) {
+	Matrix<double, MatrixType>& operator=(Matrix<double, MatrixType> &&m) noexcept{
 		// assert size debug time only
 		if(matrix) {
 			assert(matrix->size1==m.matrix->size1);
@@ -1006,7 +1006,7 @@ public:
 	 * <p>Matrix first dimension size e.g nbr of rows</p>
 	 * <p>0 if null matrix</p>
 	 */
-	size_t size_i() {
+	size_t size_i() const noexcept {
 		if(matrix) return matrix->size1;
 		else return 0;
 	}
@@ -1014,7 +1014,7 @@ public:
 	 * <p>Matrix second dimension size e.g nbr of columns</p>
 	 * <p>0 if null matrix</p>
 	 */
-	size_t size_j() {
+	size_t size_j() const noexcept {
 		if(matrix) return matrix->size2;
 		else return 0;
 	}

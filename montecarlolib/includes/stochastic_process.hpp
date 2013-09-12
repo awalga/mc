@@ -159,6 +159,7 @@ public:
 	// path builder range type
 	typedef typename Functional::RangeType RangeType;
 	typedef typename Functional::ScalarType ScalarType;
+	typedef typename StochasticDriver::X_t_Type PathRangeType;
 
 	/**
 	 * <p>Constructor</p>
@@ -172,7 +173,7 @@ public:
 	 * <p>Get path end point.</p>
 	 */
 	RangeType operator()() {
-		std::vector<RangeType> h;
+		std::vector<PathRangeType> h;
 		// get path
 		generator.conditionAt(0); // at i
 		while (!generator.isStoppingTime()) {

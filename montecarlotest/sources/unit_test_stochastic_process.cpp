@@ -38,16 +38,16 @@ struct DeterministicWalk {
 	typedef long RangeType;
 	typedef long ScalarType;
 
-	inline RangeType operator()() {
+	RangeType operator()() {
 		return 1;
 	}
 	// time step function keep it up
-	inline RangeType operator()(const RangeType &X_t, const size_t &t_1,
+	RangeType operator()(const RangeType &X_t, const size_t &t_1,
 			const double &h) {
 		return X_t + 1;
 	}
 	// stopping time keep walking till the cliff
-	inline int operator()(const size_t &t, const RangeType &X_t,
+	int operator()(const size_t &t, const RangeType &X_t,
 			const RangeType &X_0) const {
 		return 0;
 	}
@@ -57,16 +57,16 @@ struct SequenceOrdreDeuxHomogene {
 	typedef long RangeType;
 	typedef long ScalarType;
 
-	inline RangeType operator()() {
+	RangeType operator()() {
 		return 1;
 	}
 	// time step function keep it up
-	inline RangeType operator()(const RangeType &X_t_1, const RangeType &X_t,
+	RangeType operator()(const RangeType &X_t_1, const RangeType &X_t,
 			const size_t &t_1, const double &h) {
 		return X_t_1 + X_t;
 	}
 	// stopping time keep walking till the cliff
-	inline int operator()(const size_t &t, const RangeType &X_t_1,
+	int operator()(const size_t &t, const RangeType &X_t_1,
 			const RangeType &X_t, const RangeType &X_1,
 			const RangeType &X_0) const {
 		return 0;
@@ -77,16 +77,16 @@ struct SequenceOrdreTroisHomogene {
 	typedef long RangeType;
 	typedef long ScalarType;
 
-	inline RangeType operator()() {
+	RangeType operator()() {
 		return 1;
 	}
 	// time step function keep it up
-	inline RangeType operator()(const std::array<RangeType, 3> &X_t,
+	RangeType operator()(const std::array<RangeType, 3> &X_t,
 			const size_t &t_1, const double &h) {
 		return X_t[0] + X_t[1] + X_t[2];
 	}
 	// stopping time keep walking till the cliff
-	inline int operator()(const size_t &t, const std::array<RangeType, 3> &X_t,
+	int operator()(const size_t &t, const std::array<RangeType, 3> &X_t,
 			const std::array<RangeType, 3> &X_0) const {
 		return 0;
 	}
@@ -104,7 +104,7 @@ struct HeavySide {
 	typedef long RangeType;
 	typedef long ScalarType;
 
-	inline long operator()(const vector<RangeType> &h,
+	long operator()(const vector<RangeType> &h,
 			const size_t &stoppingTime) {
 		return Step <= h[h.size() - 1] ? 1 : 0;
 	}

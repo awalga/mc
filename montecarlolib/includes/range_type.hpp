@@ -24,27 +24,4 @@
 #include <iostream>
 #include <cstddef>
 
-namespace util {
-
-/**
- * <p>Define dimension type as size_t which is dependant on the plateform</p>
- */
-typedef size_t dimension;
-
-/**
- * <p>Define real value as double</p>
- */
-typedef double Real;
-
-/**
- * <p>Define integer value as int</p>
- */
-typedef long Integer;
-
-/**
- * <p>Define positive integer as unsigned int</p>
- */
-typedef unsigned int PositiveInteger;
-
-} // util
 #endif /* RANGE_TYPE_HPP_ */

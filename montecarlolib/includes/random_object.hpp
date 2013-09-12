@@ -26,13 +26,16 @@
 namespace montecarlo {
 
 /**
- * <p>Define a random object based on <code>Sample</code> which gives random variable of range type <code>RangeType</code>
- *    and scalar type <code>ScalarType</code>
+ * <p>
+ * 		Define a random object based on <code>Sample</code> which gives a sequence of variable of range type <code>RangeType</code>
+ *  	and scalar type <code>ScalarType</code>
  * </p>
  *
- * <p>The random objects defines the monte carlo expectation, variance for any <code>RangeType</code>
- *    and covariance, correlation and convariance when range type is greater than 1 and <code>RangeType</code>
- *    defines the subscript operator []
+ * <p>
+ *		The random objects defines the monte carlo expectation, variance for any <code>RangeType</code>
+ *		and covariance, correlation and convariance when range type is greater than 1.
+ *
+ *		When <code>RangeType</code> has a dimension greater than 1 then it should define at least the subscript operator: <code>const RangeType& operator()[] const;</code>
  * </p>
  */
 template<typename Sample, typename RangeType, typename ScalarType>
@@ -58,7 +61,7 @@ public:
 	 *
 	 * @param N sample size
 	 */
-	RangeType expectation(unsigned long N) {
+	RangeType expectation(unsigned long N) noexcept{
 		// initialization
 		RangeType x = sample(); // sample
 		for (unsigned long n = 1; n < N; n++) {
@@ -75,7 +78,7 @@ public:
 	 *
 	 * @param N sample size
 	 */
-	RangeType variance(unsigned long N) {
+	RangeType variance(unsigned long N) noexcept {
 		// initialization
 		RangeType x = sample(), mean = x, var = x * x;
 		for (unsigned long n = 1; n < N; n++) {
@@ -98,7 +101,7 @@ public:
 	 * @param j second component index
 	 * @param N sample size
 	 */
-	ScalarType covariance(int i, int j, unsigned long N) {
+	ScalarType covariance(int i, int j, unsigned long N) noexcept{
 		// initialization
 		RangeType x = sample(); // sample
 		ScalarType xi = x[i], xj = x[j], meani = xi, meanj = xj, covarij = xi
@@ -129,7 +132,7 @@ public:
 	 * @param j second component index
 	 * @param N sample size
 	 */
-	ScalarType correlation(int i, int j, int N) {
+	ScalarType correlation(int i, int j, int N) noexcept{
 		// initialization
 		RangeType x = sample();
 		ScalarType sum_i = x[i], sum_j = x[j], sum_i_j = x[i] * x[j], sum_i_i =
@@ -160,31 +163,31 @@ public:
 	 * @param matrix will holds covariance matrix result
 	 */
 	template<typename UTRMatrix>
-	void covarianceMatrix(unsigned long N, UTRMatrix &cov) {
+	void covarianceMatrix(unsigned long N, UTRMatrix &cov){
 		// initialization sample
 		RangeType x = sample();
 		ScalarType mean_x_i[sample.size()];
 
-		for (util::dimension i = 0; i < sample.size(); i++) {
+		for (size_t i = 0; i < sample.size(); i++) {
 			mean_x_i[i] = x[i];
-			for (util::dimension j = 0; j < sample.size(); j++) {
+			for (size_t j = 0; j < sample.size(); j++) {
 				cov(i, j) = x[i] * x[j];
 			}
 		}
 		// sample N-1
 		for (unsigned long n = 0; n < N; n++) {
 			x = sample();
-			for (util::dimension i = 0; i < sample.size(); i++) {
+			for (size_t i = 0; i < sample.size(); i++) {
 				mean_x_i[i] += x[i];
-				for (util::dimension j = 0; j < sample.size(); j++) {
+				for (size_t j = 0; j < sample.size(); j++) {
 					cov(i, j) += x[i] * x[j];
 				}
 			}
 		}
 		// average
-		for (util::dimension i = 0; i < sample.size(); i++) {
+		for (size_t i = 0; i < sample.size(); i++) {
 			mean_x_i[i] /= N;
-			for (util::dimension j = 0; j < sample.size(); j++) {
+			for (size_t j = 0; j < sample.size(); j++) {
 				cov(i, j) = cov(i, j) / N - mean_x_i[i] * mean_x_i[j] / (N * N);
 			}
 		}

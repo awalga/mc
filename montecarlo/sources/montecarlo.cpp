@@ -29,7 +29,6 @@
 
 using namespace std;
 
-using namespace util;
 using namespace randomvariable;
 using namespace randomprocess;
 using namespace montecarlo;
@@ -37,8 +36,8 @@ using namespace linear_algebra;
 
 class STN {
 public:
-	typedef Real RangeType;
-	typedef Real ScalarType;
+	typedef double RangeType;
+	typedef double ScalarType;
 	typedef normal_distribution<RangeType> Dist;
 
 	default_random_engine generator;
@@ -47,14 +46,13 @@ public:
 
 	function<double(void)> stn_gen = std::bind(stn, generator);
 
-	Real operator()() {
+	double operator()() {
 		return stn_gen();
 	}
 };
-
 void test_random_object() {
 	STN stn;
-	std::vector<Real> data;
+	std::vector<double> data;
 	for (int i = 0; i < 200; i++) {
 		data.push_back(stn());
 	}
@@ -64,13 +62,13 @@ void test_random_object() {
 	cout << "Empirical Distribtion variance" << endl;
 	cout << empVar.variance(50000) << endl;
 
-	STNRealRandomVariable stnVar(0.0, 1.0);
+	STNRealRandomVariable stnVar(1.0);
 	cout << "STN Distribution mean" << endl;
 	cout << stnVar.expectation(100) << endl;
 	cout << "STN Distribution mean" << endl;
 	cout << stnVar.variance(100) << endl;
 
-	IIDSTNRealRandomVectorVariable iidvector(10, 0.0, 1.0);
+	GaussianRandomVector iidvector(std::vector<double>( { 10.0, 0.0, 1.0 }));
 	auto vecMean = iidvector.expectation(10000);
 	cout << "Mean vector" << endl;
 	for (int i = 0; i < 10; i++) {
@@ -162,7 +160,8 @@ typedef RandomWalkGenerator<DeterministicWalk> DeterministicWalkGenerator;
 typedef SecondOrderStochasticDriver<SequenceOrdreDeuxHomogene> DeterministicSequenceOrdreDeux;
 typedef StochasticDriver<SequenceOrdreTroisHomogene, 3> DeterministicSequenceOrdreTrois;
 
-//// path functional test
+#include <array>
+// path functional test
 template<long Step>
 struct HeavySide {
 
@@ -185,6 +184,81 @@ void testProcessOrderDeux() {
 	auto mean = var.expectation(1000);
 	cout << mean << endl;
 }
-int main() {
 
+void testGaussianRandomVector() {
+	GaussianRandomVector vector1(std::vector<double>( { 1.0 }));
+	GaussianRandomVector vector2(std::move(vector1));
+	auto meanVec = vector2.expectation(5000);
+	for (size_t i = 0; i < meanVec.size(); i++) {
+		cout << meanVec[i] << endl;
+	}
+	auto variance = vector2.variance(5000);
+	for (size_t i = 0; i < variance.size(); i++) {
+		cout << variance[i] << endl;
+	}
+}
+// random walk
+const double X_0 = 1.0;
+const double dt = 1.0;
+const size_t T = 100;
+
+//  one dimension random walk X_t_1 = f(X_t)
+struct OneDimensionRandomWalkGenerator {
+	// rvar range type
+	typedef double RangeType;
+	typedef double ScalarType;
+	// rng
+	NormalSequence stn;
+
+	OneDimensionRandomWalkGenerator() :
+			stn(std::sqrt(dt)) {
+	}
+	// time step function keep it up
+	RangeType operator()(const RangeType &X_t, const size_t &t_1,
+			const double &h) {
+		return X_t + stn();// X_t+sqrt(dt)*STN();
+	}
+	// stopping time keep walking till the cliff
+	int operator()(const size_t &t, const RangeType &X_t,
+			const RangeType &X_0) const {
+		return 0;
+	}
+};
+// one dimension random walk functional defined for a simulation time of 100 and starting point 1.0
+struct OneDimensionRandomWalkFunctional {
+
+	typedef RealRowVector RangeType;
+	typedef double ScalarType;
+
+	size_t simulationTime;
+	double meanValue;
+
+	OneDimensionRandomWalkFunctional(): simulationTime(T), meanValue(X_0){}
+
+	/**
+	 * @param path
+	 * @param stoppingTime
+	 * @return randomvalue
+	 */
+	RangeType operator()(const vector<double> &path, const size_t &stoppingTime) {
+		// TODO check path size is not bigger than simul time.
+		RangeType h(simulationTime-1);
+		for(size_t i = 0; i<path.size();i++){
+			h[i] = path[i];
+		}
+		for(size_t i = path.size(); i<simulationTime-1; i++){
+			h[i] = meanValue;
+		}
+		return h;
+	}
+};
+typedef StochasticDriver<OneDimensionRandomWalkGenerator, 1> RandomWalkDriver;
+typedef StochasticProcess<RandomWalkDriver, OneDimensionRandomWalkFunctional> RandomWalkStochasticProcess;
+int main() {
+	RandomWalkStochasticProcess randomWalkProcess(OneDimensionRandomWalkGenerator(), X_0, T, dt);
+	auto randomWalkVar = randomWalkProcess();
+	auto meanVector = randomWalkVar.expectation(1000);
+	for(size_t i = 0; i<meanVector.size(); i++){
+		cout << i << ":" << meanVector[i] << endl;
+	}
 }

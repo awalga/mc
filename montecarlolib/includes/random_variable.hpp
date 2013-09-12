@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2013  Abel Walga
  *
- *  ${file_name} is free software: you can redistribute it and/or modify
+ *  random_variable.hpp is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  ${file_name} is distributed in the hope that it will be useful,
+ *  random_variable.hpp is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
@@ -24,13 +24,10 @@
 #include "range_type.hpp"						// util::dimension, util::Real, util::PositiveInteger
 #include "random_object.hpp"					// montecarlo::RandomObject
 #include "algebra/matrix.hpp"					// linear_algebra::RealRowVector
-
 #include <gsl/gsl_rng.h>						// gsl_rng, gsl_rng_type, gsl_rng_default, gsl_rng_alloc,gsl_rng_env_setup
 #include <gsl/gsl_randist.h>					// gsl_rng_uniform, gsl_ran_gaussian
-
-#include <vector>								// std::vector
+#include <vector>								// std:vector, std::array
 #include <memory>								// std::unique_ptr
-
 namespace randomvariable {
 
 struct GarbageGenerator {
@@ -49,16 +46,16 @@ struct GarbageGenerator {
 class EmpiricalRandomSequence {
 private:
 	// underlying data
-	std::vector<util::Real> data_set;
+	std::vector<double> data_set;
 
 	// random number generator
-	util::dimension n; // range
+	size_t n; // range
 	std::unique_ptr<gsl_rng, GarbageGenerator> rng;
 
 public:
 	// sequence characteristics
-	typedef util::Real RangeType;
-	typedef util::Real ScalarType;
+	typedef double RangeType;
+	typedef double ScalarType;
 
 	/**
 	 * <p>Constructor</p>
@@ -66,28 +63,27 @@ public:
 	 *
 	 * @param const data& empirical data
 	 */
-	EmpiricalRandomSequence(const std::vector<util::Real>& data = { 0 });
+	EmpiricalRandomSequence(const std::vector<double>& data = { 0 });
 	/**
 	 * <p>Constructor/</p>
 	 *
 	 * @param data&& empirical sequence
 	 */
-	EmpiricalRandomSequence(std::vector<util::Real> && data);
+	EmpiricalRandomSequence(std::vector<double>&&);
 
 	/**
 	 * <p>Copy constructor</p>
 	 */
 	EmpiricalRandomSequence(const EmpiricalRandomSequence&);
-
 	/**
 	 * <p>Move constructor</p>
 	 */
-	EmpiricalRandomSequence(EmpiricalRandomSequence&&);
+	EmpiricalRandomSequence(EmpiricalRandomSequence&&) noexcept = default;
 
 	/**
 	 * <p>Get a sample.</p>
 	 */
-	RangeType operator()() const {
+	RangeType operator()() const noexcept {
 		return data_set[gsl_rng_uniform_int(rng.get(), n)];
 	}
 
@@ -113,8 +109,8 @@ private:
 
 public:
 	// sequence characteristics
-	typedef util::PositiveInteger RangeType;
-	typedef util::PositiveInteger ScalarType;
+	typedef unsigned long RangeType;
+	typedef unsigned long ScalarType;
 
 	/**
 	 * <p>Constructor</p>
@@ -123,8 +119,7 @@ public:
 	 * @param data mean
 	 * @param stddev standard deviation
 	 */
-	explicit BernoulliSequence(double p = 0.5);
-
+	explicit BernoulliSequence(double _p = 0.5);
 	/**
 	 * <p>Copy constructor</p>
 	 */
@@ -133,11 +128,12 @@ public:
 	/**
 	 * <p>Move constructor</p>
 	 */
-	BernoulliSequence(BernoulliSequence&&);
+	BernoulliSequence(BernoulliSequence&&) noexcept = default;
+
 	/**
 	 * <p>Get a sample.</p>
 	 */
-	RangeType operator()() const {
+	RangeType operator()() const noexcept {
 		return gsl_ran_bernoulli(rng.get(), p);
 	}
 
@@ -163,8 +159,8 @@ private:
 
 public:
 	// sequence characteristics
-	typedef util::PositiveInteger RangeType;
-	typedef util::PositiveInteger ScalarType;
+	typedef unsigned long RangeType;
+	typedef unsigned long ScalarType;
 
 	/**
 	 * <p>Constructor</p>
@@ -173,21 +169,22 @@ public:
 	 * @param data mean
 	 * @param stddev standard deviation
 	 */
-	BinomialSequence(double p = 0.5, size_t _trial = 1);
+	BinomialSequence(double _p = 0.5, size_t _trial = 1);
 
 	/**
 	 * <p>Copy constructor</p>
 	 */
-	BinomialSequence(const BinomialSequence&);
+	BinomialSequence(const BinomialSequence &);
 
 	/**
 	 * <p>Move constructor</p>
 	 */
-	BinomialSequence(BinomialSequence&&);
+	BinomialSequence(BinomialSequence&&) noexcept = default;
+
 	/**
 	 * <p>Get a sample.</p>
 	 */
-	RangeType operator()() const {
+	RangeType operator()() const noexcept {
 		return gsl_ran_binomial(rng.get(), p, trial);
 	}
 
@@ -212,8 +209,8 @@ private:
 
 public:
 	// sequence characteristics
-	typedef util::PositiveInteger RangeType;
-	typedef util::PositiveInteger ScalarType;
+	typedef unsigned long RangeType;
+	typedef unsigned long ScalarType;
 
 	/**
 	 * <p>Constructor</p>
@@ -222,7 +219,7 @@ public:
 	 * @param data mean
 	 * @param stddev standard deviation
 	 */
-	explicit PoissonSequence(double mu = 1.0);
+	explicit PoissonSequence(double _mu = 1.0);
 
 	/**
 	 * <p>Copy constructor</p>
@@ -232,11 +229,12 @@ public:
 	/**
 	 * <p>Move constructor</p>
 	 */
-	PoissonSequence(PoissonSequence&&);
+	PoissonSequence(PoissonSequence&&) noexcept = default;
+
 	/**
 	 * <p>Get a sample.</p>
 	 */
-	RangeType operator()() const {
+	RangeType operator()() const noexcept {
 		return gsl_ran_poisson(rng.get(), mu);
 	}
 
@@ -250,18 +248,18 @@ public:
 typedef montecarlo::RandomObject<PoissonSequence, PoissonSequence::RangeType,
 		PoissonSequence::ScalarType> PoissonRandomVariable;
 
-// define a normal distribution sequence
-class STNRealSequence {
+// define a centered normal distribution sequence
+class NormalSequence {
 private:
 	// normal distribution
-	double mu, sigma;
+	double sigma;
 	// random number generator
 	std::unique_ptr<gsl_rng, GarbageGenerator> rng;
 
 public:
 	// sequence characteristics
-	typedef util::Real RangeType;
-	typedef util::Real ScalarType;
+	typedef double RangeType;
+	typedef double ScalarType;
 
 	/**
 	 * <p>Constructor</p>
@@ -270,99 +268,105 @@ public:
 	 * @param data mean
 	 * @param stddev standard deviation
 	 */
-	STNRealSequence(double mean = 0.0, double stddev = 1.0);
+	NormalSequence(double _stddev = 1.0);
 
 	/**
 	 * <p>Copy constructor</p>
 	 */
-	STNRealSequence(const STNRealSequence&);
+	NormalSequence(const NormalSequence &other);
 
 	/**
 	 * <p>Move constructor</p>
 	 */
-	STNRealSequence(STNRealSequence&&);
+	NormalSequence(NormalSequence &&other) noexcept = default;
+
 	/**
 	 * <p>Get a sample.</p>
 	 */
-	RangeType operator()() const {
-		return gsl_ran_gaussian_ziggurat(rng.get(), sigma) + mu;
+	RangeType operator()() const noexcept {
+		return gsl_ran_gaussian_ziggurat(rng.get(), sigma);
 	}
 
 	/**
 	 * <p>Destructor</p>
 	 */
-	virtual ~STNRealSequence() {
+	virtual ~NormalSequence() {
 	}
 };
-// end of STNRealSequence
+// end of NormalSequence
 
-typedef montecarlo::RandomObject<STNRealSequence, STNRealSequence::RangeType,
-		STNRealSequence::ScalarType> STNRealRandomVariable;
+typedef montecarlo::RandomObject<NormalSequence, NormalSequence::RangeType,
+		NormalSequence::ScalarType> STNRealRandomVariable;
 
-// define a real iid normally distributed vector
-class IIDSTNRealVectorSequence {
-private:
-	// rand var dimensions
-	util::dimension range_size;
-	util::dimension range_dim;
-
-	// normal distribution
-	double mu, sigma;
-
-	// random number generator
-	std::unique_ptr<gsl_rng, GarbageGenerator> rng;
+// define a sequence of uncorrelated gaussian random variable vector.
+class GaussianRealVectorSequence {
 
 public:
-	// sequence characteristics
 	typedef linear_algebra::RealRowVector RangeType;
-	typedef util::Real ScalarType;
+	typedef double ScalarType;
 
 	/**
-	 * <p>Constructor</p>
-	 * <p>Default constructor is a sequence of size 1 of a standard normal(0,1.0)</p<
+	 * <p>
+	 * 		Default constructor
+	 * </p>
+	 *
+	 * @param sigma
 	 */
-	IIDSTNRealVectorSequence(util::dimension n = 1, double commonmean = 0.0,
-			double stddev = 1.0);
+	GaussianRealVectorSequence(const std::vector<double> &_sigma = { 1.0 });
 
 	/**
-	 * <p>Copy constructor</p>
+	 * <p>
+	 * 		Copy constructor.
+	 * </p>
+	 *
+	 * @param copy const GaussianRealVectorSequence&
 	 */
-	IIDSTNRealVectorSequence(const IIDSTNRealVectorSequence&);
+	GaussianRealVectorSequence(const GaussianRealVectorSequence&);
 
 	/**
-	 * <p>Move constructor</p>
+	 * <p>
+	 * 		Move constructor.
+	 * 	</p>
+	 *
+	 * @param move GaussianRealVectorSequence&&
 	 */
-	IIDSTNRealVectorSequence(IIDSTNRealVectorSequence&&);
+	GaussianRealVectorSequence(GaussianRealVectorSequence&&) noexcept = default;
 
 	/**
-	 * <p>Get a sample</p>
+	 * <p>
+	 * 		Generate a random vector
+	 * 	</p>
+	 *
+	 * @return RangeType
 	 */
-	RangeType operator()() const {
-		linear_algebra::RealRowVector randVec(range_size);
-		for (size_t i = 0; i < range_size; i++) {
-			randVec(i, gsl_ran_gaussian_ziggurat(rng.get(), sigma) + mu);
+	RangeType operator()() const noexcept {
+		linear_algebra::RealRowVector randVec(sigma.size());
+		for (size_t i = 0; i < sigma.size(); i++) {
+			randVec(i, gsl_ran_gaussian_ziggurat(rng.get(), sigma[i]));
 		}
 		return randVec;
 	}
 
-	util::dimension size() const {
-		return range_size;
-	}
-
-	util::dimension dim() const {
-		return range_dim;
-	}
 	/**
-	 * <p>Destructor</p>
+	 * <p>
+	 * 		Get vector size.
+	 * </p>
+	 *
+	 * @return size_t
 	 */
-	virtual ~IIDSTNRealVectorSequence() {
+	size_t size() const noexcept {
+		return sigma.size();
 	}
+
+	~GaussianRealVectorSequence() {
+	}
+private:
+	std::unique_ptr<gsl_rng, GarbageGenerator> rng;
+	std::vector<double> sigma;
 };
-
-typedef montecarlo::RandomObject<IIDSTNRealVectorSequence,
-		IIDSTNRealVectorSequence::RangeType,
-		IIDSTNRealVectorSequence::ScalarType> IIDSTNRealRandomVectorVariable;
-
-} // end namespace randomvariable
-
+typedef montecarlo::RandomObject<GaussianRealVectorSequence,
+		GaussianRealVectorSequence::RangeType,
+		GaussianRealVectorSequence::ScalarType> GaussianRandomVector;
+// end gaussian real vector sequence
+}// end namespace randomvariable
 #endif /* RANDOM_VARIABLE_HPP_ */
